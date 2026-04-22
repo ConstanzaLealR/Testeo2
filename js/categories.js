@@ -1,13 +1,14 @@
 // ==================== FUNCIÓN PARA RENDERIZAR PRODUCTOS POR CATEGORÍA ====================
 function renderCategoryProducts(categoryId, categoryName, categoryIcon) {
-  // Verificar que products existe (viene de app.js)
-  if (typeof products === 'undefined') {
-    console.error("❌ Error: products no está definido. Asegúrate de cargar app.js antes que categories.js");
+  // Verificar que products existe y es un array válido
+  if (!Array.isArray(products)) {
+    console.error("❌ Error: products no es un array válido o no está cargado aún", products);
     return;
   }
 
-  // Filtrar productos por categoría
-  const filteredProducts = products.filter(p => p.category === categoryId);
+  // Filtrar productos por categoría (más seguro)
+  const filteredProducts = products.filter(p => p && p.category === categoryId);
+
   const container = document.getElementById("products");
   
   if (!container) {
@@ -26,30 +27,45 @@ function renderCategoryProducts(categoryId, categoryName, categoryIcon) {
     titleElement.innerHTML = `${categoryIcon} ${categoryName}`;
   }
 
-  // Mostrar productos o mensaje si no hay
+  if (subtitleElement) {
+    subtitleElement.innerHTML = `Productos disponibles en ${categoryName}`;
+  }
+
+  // Mostrar mensaje si no hay productos
   if (filteredProducts.length === 0) {
     container.innerHTML = `<p class="no-results">No hay productos disponibles en ${categoryName}</p>`;
     return;
   }
 
+  // Verificar que createCard existe
+  if (typeof createCard !== 'function') {
+    console.error("❌ Error: createCard no está definida. Verifica que app.js esté cargado antes");
+    return;
+  }
+
   // Renderizar cada producto
   filteredProducts.forEach(product => {
-    if (typeof createCard === 'function') {
+    try {
       const card = createCard(product);
-      container.appendChild(card);
-    } else {
-      console.error("❌ Error: createCard no está definida. Asegúrate de cargar app.js antes");
+
+      if (card instanceof HTMLElement) {
+        container.appendChild(card);
+      } else {
+        console.warn("⚠️ createCard no devolvió un elemento válido:", card);
+      }
+
+    } catch (error) {
+      console.error("❌ Error renderizando producto:", product, error);
     }
   });
 }
 
-// Detectar automáticamente qué página es según el nombre del archivo o un data attribute
+
+// ==================== DETECTAR PÁGINA Y CARGAR CATEGORÍA ====================
 document.addEventListener("DOMContentLoaded", () => {
-  // Opción 1: Detectar por la URL
   const path = window.location.pathname;
   const pageName = path.split("/").pop().replace(".html", "");
-  
-  // Mapeo de nombres de archivo a categorías
+
   const categoryMap = {
     "pinturas": { id: "pinturas", name: "Pinturas", icon: "🎨" },
     "vitrificantes": { id: "vitrificantes", name: "Vitrificantes", icon: "✨" },
@@ -59,9 +75,15 @@ document.addEventListener("DOMContentLoaded", () => {
     "brillos": { id: "brillos", name: "Brillos", icon: "✨" },
     "limpieza": { id: "limpieza", name: "Limpieza", icon: "🧼" }
   };
-  
+
   if (categoryMap[pageName]) {
     const cat = categoryMap[pageName];
-    renderCategoryProducts(cat.id, cat.name, cat.icon);
+
+    // Esperar un poco por si products aún no carga (fallback)
+    setTimeout(() => {
+      renderCategoryProducts(cat.id, cat.name, cat.icon);
+    }, 50);
+  } else {
+    console.warn("⚠️ No se encontró categoría para esta página:", pageName);
   }
 });

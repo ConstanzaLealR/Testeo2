@@ -16,7 +16,7 @@
 <!-- 🟢 HEADER -->
 <header>
   <div class="header-content">
-    <a href="#" class="logo">
+    <a href="index.html" class="logo">
       <img src="img/logo.png" alt="Logo">
     </a>
 
@@ -179,6 +179,7 @@
   </div>
 </section>
 
+
 <!-- 🌟 SECCIÓN DE VALORES -->
 <section class="values-section">
   <div class="values-container">
@@ -246,6 +247,8 @@
   ↑
 </button>
 
+
+
 <!-- 📄 MODAL TÉRMINOS -->
 <div id="termsModal" class="modal">
   <div class="modal-box modal-large">
@@ -275,7 +278,22 @@
   </div>
 </div>
 
+<!-- 🪟 MODAL DE PRODUCTOS -->
+<div id="imageModal" class="modal">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <img id="modalImg" src="" alt="Producto">
+    <h3 id="modalTitle"></h3>
+    <div id="modalDescription" class="modal-description"></div>
+    <div id="modalPrice"></div>
+    <a id="modalBtn" class="whatsapp-btn" target="_blank">📱 Comprar por WhatsApp</a>
+  </div>
+</div>
+
 <script src="js/app.js"></script>
+<script src="categories.js"></script>
+
+
 
 </body>
 </html>
